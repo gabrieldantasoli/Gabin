@@ -44,7 +44,7 @@ export default function Login() {
 
       toast.success(`Bem-vindo, ${data.nome}!`);
 
-      navigate("/app/home", { replace: true });
+      navigate("/gabin/app/home", { replace: true });
     } catch {
       toast.error("Falha de rede. Verifique a API.");
     } finally {
@@ -94,7 +94,7 @@ export default function Login() {
 
         <div className={styles.footer}>
           <span className={styles.muted}>Não tem uma conta?</span>{" "}
-          <Link className={styles.link} to="/cadastro">
+          <Link className={styles.link} to="/gabin/cadastro">
             Cadastre-se
           </Link>
         </div>

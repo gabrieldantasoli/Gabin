@@ -590,7 +590,7 @@ export default function ProcessoPdfPage() {
   useEffect(() => {
     if (!Number.isFinite(arquivoId) || arquivoId <= 0) {
       toast.error("ID do arquivo inválido.");
-      navigate("/app/processos");
+      navigate("/gabin/app/processos");
       return;
     }
     loadMeta();
@@ -719,7 +719,7 @@ export default function ProcessoPdfPage() {
       </div>
 
       <div className={styles.header}>
-        <button className={styles.backBtn} type="button" onClick={() => navigate("/app/processos")}>
+        <button className={styles.backBtn} type="button" onClick={() => navigate("/gabin/app/processos")}>
           <ArrowLeft className={styles.btnIcon} aria-hidden="true" />
           Voltar
         </button>

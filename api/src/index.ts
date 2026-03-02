@@ -43,10 +43,10 @@ app.listen(port, () => {
   console.log(`API on http://localhost:${port}`);
 });
 
-
 app.use(
   cors({
     origin: ["http://localhost:5173"],
     credentials: true,
   })
 );
+

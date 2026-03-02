@@ -29,13 +29,6 @@ type Row = {
 
 type SortMode = "recent" | "oldest" | "az" | "za";
 
-function normalizeStatus(s: string) {
-  return String(s || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-}
-
 function statusText(r: Row) {
   if (!r.minha_solicitacao_id) return "Sem solicitação";
   if (r.minha_atendido === null) return "Pendente";
@@ -285,7 +278,7 @@ export default function GabinetesTodosPage() {
                       <button
                         type="button"
                         className={styles.ghostBtn}
-                        onClick={() => navigate(`/app/gabinetes/${g.id}`)}
+                        onClick={() => navigate(`/gabin/app/gabinetes/${g.id}`)}
                         title="Abrir gabinete"
                       >
                         <Eye className={styles.btnIcon} aria-hidden="true" />

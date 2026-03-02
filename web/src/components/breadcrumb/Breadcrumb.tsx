@@ -27,7 +27,7 @@ export default function Breadcrumb() {
         const isLast = i === segments.length - 1;
 
         // Ajuste: ao clicar em "Início" (segmento app), mandar pro default /app/processos
-        const to = seg === "app" ? "/app/home" : acc;
+        const to = seg === "app" ? "/gabin/app/home" : acc;
         const label = LABELS[seg] ?? decodeURIComponent(seg);
 
         return (

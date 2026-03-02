@@ -83,7 +83,7 @@ npm install
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite (geralmente `http://localhost:5173`).
+Abra o endereço exibido pelo Vite (geralmente `http://127.0.0.1:5173`).
 
 ## Comandos úteis (Docker)
 
@@ -99,7 +99,7 @@ docker compose down
 
 Resetar banco (APAGA dados — dev apenas):
 ```bash
-docker compose down -v
+docker compose down -v gabin-api
 docker compose up -d --build db
 docker compose restart db
 ```
