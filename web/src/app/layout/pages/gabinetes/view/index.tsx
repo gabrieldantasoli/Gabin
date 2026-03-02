@@ -169,7 +169,7 @@ export default function GabineteOpenPage() {
   useEffect(() => {
     if (!Number.isFinite(gabineteId) || gabineteId <= 0) {
       toast.error("ID do gabinete inválido.");
-      navigate("/app/gabinetes");
+      navigate("/gabin/app/gabinetes");
       return;
     }
     loadAll();
@@ -269,7 +269,7 @@ export default function GabineteOpenPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button className={styles.backBtn} type="button" onClick={() => navigate("/app/gabinetes")}>
+        <button className={styles.backBtn} type="button" onClick={() => navigate("/gabin/app/gabinetes")}>
           <ArrowLeft className={styles.btnIcon} aria-hidden="true" />
           Voltar
         </button>
@@ -462,7 +462,7 @@ export default function GabineteOpenPage() {
                                   <button
                                     type="button"
                                     className={styles.secondaryBtn}
-                                    onClick={() => navigate(`/app/processos/${p.id}`)}
+                                    onClick={() => navigate(`/gabin/app/processos/${p.id}`)}
                                     title="Abrir processo"
                                   >
                                     Abrir

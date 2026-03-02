@@ -7,7 +7,7 @@ export default function PublicOnly({ children }: { children: React.ReactNode }) 
   if (status === "loading") return null;
 
   // ✅ logado não entra em /login e /cadastro
-  if (status === "authed") return <Navigate to="/app/home" replace />;
+  if (status === "authed") return <Navigate to="/gabin/app/home" replace />;
 
   return <>{children}</>;
 }

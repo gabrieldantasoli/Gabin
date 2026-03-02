@@ -7,11 +7,24 @@ const router = Router();
 const COOKIE_NAME = "sid";
 const TTL_DAYS = 7;
 
-function cookieOptions() {
+// Detecta HTTPS mesmo atrás de proxy (nginx)
+function isHttps(req: any): boolean {
+  const xfProto = String(req.headers?.["x-forwarded-proto"] ?? "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase();
+
+  if (xfProto) return xfProto === "https";
+  return !!req.secure;
+}
+
+function cookieOptions(req: any) {
+  const secure = isHttps(req);
+
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure, // ✅ só true quando HTTPS de verdade
     path: "/",
     maxAge: TTL_DAYS * 24 * 60 * 60 * 1000,
   };
@@ -23,7 +36,9 @@ router.post("/auth/login", async (req, res) => {
     const senha = String(req.body?.senha ?? "").trim();
 
     if (!identifier || !senha) {
-      return res.status(400).json({ error: "VALIDATION", message: "identifier e senha são obrigatórios" });
+      return res
+        .status(400)
+        .json({ error: "VALIDATION", message: "identifier e senha são obrigatórios" });
     }
 
     const pool = await getPool();
@@ -36,10 +51,18 @@ router.post("/auth/login", async (req, res) => {
       .query(`EXEC dbo.usp_auth_login @identifier=@identifier, @senha=@senha`);
 
     const user = userResult.recordset?.[0];
-    if (!user) return res.status(401).json({ error: "INVALID_CREDENTIALS", message: "Credenciais inválidas" });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ error: "INVALID_CREDENTIALS", message: "Credenciais inválidas" });
+    }
 
     const ok = await bcrypt.compare(senha, String(user.senha));
-    if (!ok) return res.status(401).json({ error: "INVALID_CREDENTIALS", message: "Credenciais inválidas" });
+    if (!ok) {
+      return res
+        .status(401)
+        .json({ error: "INVALID_CREDENTIALS", message: "Credenciais inválidas" });
+    }
 
     // Cria sessão no DB
     const ttlMinutes = TTL_DAYS * 24 * 60;
@@ -52,10 +75,13 @@ router.post("/auth/login", async (req, res) => {
     const session = sessResult.recordset?.[0];
     const sid = String(session.session_id);
 
-    res.cookie(COOKIE_NAME, sid, cookieOptions());
+    // ✅ cookie com secure correto p/ HTTP vs HTTPS
+    res.cookie(COOKIE_NAME, sid, cookieOptions(req));
     return res.json({ id: user.id, nome: user.nome, login: user.login });
   } catch (err: any) {
-    return res.status(500).json({ error: "AUTH_ERROR", message: String(err?.message ?? "") });
+    return res
+      .status(500)
+      .json({ error: "AUTH_ERROR", message: String(err?.message ?? "") });
   }
 });
 
@@ -84,7 +110,9 @@ router.get("/auth/me", async (req, res) => {
 
     return res.json(user);
   } catch (err: any) {
-    return res.status(500).json({ error: "AUTH_ERROR", message: String(err?.message ?? "") });
+    return res
+      .status(500)
+      .json({ error: "AUTH_ERROR", message: String(err?.message ?? "") });
   }
 });
 
@@ -99,10 +127,20 @@ router.post("/auth/logout", async (req, res) => {
         .query(`EXEC dbo.usp_sessions_revoke @session_id=@session_id`);
     }
 
-    res.clearCookie(COOKIE_NAME, { path: "/" });
+    // ✅ clear com as mesmas flags (principalmente secure)
+    res.clearCookie(COOKIE_NAME, {
+      path: "/",
+      sameSite: "lax",
+      secure: isHttps(req),
+    });
+
     return res.status(204).send();
   } catch {
-    res.clearCookie(COOKIE_NAME, { path: "/" });
+    res.clearCookie(COOKIE_NAME, {
+      path: "/",
+      sameSite: "lax",
+      secure: isHttps(req),
+    });
     return res.status(204).send();
   }
 });

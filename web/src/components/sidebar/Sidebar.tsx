@@ -25,13 +25,6 @@ function IconSolicitacoes() {
   );
 }
 
-function IconFavoritos() {
-  return (
-    <svg viewBox="0 0 24 24" className={styles.icon} aria-hidden="true">
-      <path d="M12 17.3 6.7 20l1-6-4.4-4.1 6.1-.9L12 3.5l2.6 5.5 6.1.9L16.3 14l1 6Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function IconSair() {
   return (
@@ -60,29 +53,29 @@ export default function Sidebar() {
     <aside className={styles.sidebar} aria-label="Menu lateral">
       <div className={styles.top}>
         <div className={styles.logoWrap}>
-          <NavLink to="/app/home">
+          <NavLink to="/gabin/app/home">
             <Logo />
           </NavLink>
 
         </div>
 
         <nav className={styles.nav}>
-          <NavLink to="/app/processos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          <NavLink to="/gabin/app/processos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <IconProcessos />
             <span>Processos</span>
           </NavLink>
 
-          <NavLink to="/app/gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          <NavLink to="/gabin/app/gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <Building2 className={styles.icon} aria-hidden="true" />
             <span>Gabinetes</span>
           </NavLink>
 
-          <NavLink to="/app/meus-gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          <NavLink to="/gabin/app/meus-gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <Building2 className={styles.icon} aria-hidden="true" />
             <span>Meus Gabinetes</span>
           </NavLink>
 
-          <NavLink to="/app/solicitacoes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          <NavLink to="/gabin/app/solicitacoes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <IconSolicitacoes />
             <span>Solicitações</span>
           </NavLink>
@@ -91,7 +84,7 @@ export default function Sidebar() {
             <IconFavoritos />
             <span>Favoritos</span>
           </NavLink> */}
-          <NavLink to="/app/meus-acessos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          <NavLink to="/gabin/app/meus-acessos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <KeyRound className={styles.icon} aria-hidden="true" />
             <span>Meus Acessos</span>
           </NavLink>

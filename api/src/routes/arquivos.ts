@@ -2,12 +2,13 @@ import { Router } from "express";
 import multer from "multer";
 import { getPool, sql } from "../db";
 import { requireAuth } from "../middleware/requireAuth";
+import { PDFParse } from "pdf-parse";
 
 const router = Router();
 
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+    limits: { fileSize: 100000000 * 1024 * 1024 }, // 20MB
     fileFilter: (_req, file, cb) => {
         if (file.mimetype !== "application/pdf") {
             return cb(new Error("PDF_ONLY"));
@@ -201,7 +202,7 @@ router.post("/arquivos", requireAuth, upload.single("pdf"), async (req, res) => 
         ];
 
         try {
-            const parsed: any = await pdfParse(pdfBuffer);
+            const parsed: any = await new PDFParse(pdfBuffer);
             const info: any = parsed?.info || {};
 
             const add = (key: string, v: any) => {

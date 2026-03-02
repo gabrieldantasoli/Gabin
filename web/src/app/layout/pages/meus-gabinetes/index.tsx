@@ -295,7 +295,7 @@ export default function GabinetesPage() {
                       <button
                         type="button"
                         className={styles.ghostBtn}
-                        onClick={() => navigate(`/app/gabinetes/${g.id}`)}
+                        onClick={() => navigate(`/gabin/app/gabinetes/${g.id}`)}
                         title="Abrir gabinete"
                       >
                         <Eye className={styles.btnIcon} aria-hidden="true" />

@@ -18,10 +18,12 @@ import GabineteOpenPage from "./app/layout/pages/gabinetes/view";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* Sempre jogar para /gabin */}
+      <Route path="/" element={<Navigate to="/gabin/login" replace />} />
+      <Route path="/gabin" element={<Navigate to="/gabin/login" replace />} />
 
       <Route
-        path="/login"
+        path="/gabin/login"
         element={
           <PublicOnly>
             <Login />
@@ -30,7 +32,7 @@ export default function App() {
       />
 
       <Route
-        path="/cadastro"
+        path="/gabin/cadastro"
         element={
           <PublicOnly>
             <Cadastro />
@@ -39,31 +41,37 @@ export default function App() {
       />
 
       <Route
-        path="/app"
+        path="/gabin/app"
         element={
           <RequireAuth>
             <AppLayout />
           </RequireAuth>
         }
       >
-        <Route index element={<Navigate to="/app/home" replace />} />
-        <Route path="home" element={<Home />} />
+        {/* index do /gabin/app */}
+        <Route index element={<Navigate to="/gabin/app/home" replace />} />
 
-        <Route path="processos" element={<ProcessosPage />} />
-        <Route path="gabinetes" element={<GabinetesTodosPage />} />
-        <Route path="/app/gabinetes/:id" element={<GabineteOpenPage />} />
-        <Route path="meus-gabinetes" element={<GabinetesPage />} />
-        <Route path="solicitacoes" element={<SolicitacoesPage />} />
-        <Route path="favoritos" element={<FavoritosPage />} />
-        <Route path="meus-acessos" element={<Acessos />} />
-        <Route path="processos" element={<ProcessosPage />} />
-        <Route path="processos/novo" element={<NovoProcessoPage />} />
-        <Route path="processos/:id" element={<ProcessoPdfPage />} />
+        {/* TODAS as rotas com prefixo /gabin */}
+        <Route path="/gabin/app/home" element={<Home />} />
 
-        <Route path="*" element={<Navigate to="/app/home" replace />} />
+        <Route path="/gabin/app/processos" element={<ProcessosPage />} />
+        <Route path="/gabin/app/processos/novo" element={<NovoProcessoPage />} />
+        <Route path="/gabin/app/processos/:id" element={<ProcessoPdfPage />} />
+
+        <Route path="/gabin/app/gabinetes" element={<GabinetesTodosPage />} />
+        <Route path="/gabin/app/gabinetes/:id" element={<GabineteOpenPage />} />
+        <Route path="/gabin/app/meus-gabinetes" element={<GabinetesPage />} />
+
+        <Route path="/gabin/app/solicitacoes" element={<SolicitacoesPage />} />
+        <Route path="/gabin/app/favoritos" element={<FavoritosPage />} />
+        <Route path="/gabin/app/meus-acessos" element={<Acessos />} />
+
+        {/* wildcard dentro do app */}
+        <Route path="*" element={<Navigate to="/gabin/app/home" replace />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* wildcard global */}
+      <Route path="*" element={<Navigate to="/gabin/login" replace />} />
     </Routes>
   );
 }

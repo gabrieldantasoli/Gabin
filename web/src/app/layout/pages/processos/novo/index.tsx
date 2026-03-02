@@ -83,7 +83,7 @@ export default function NovoProcessoPage() {
             }
 
             toast.success("Arquivo cadastrado com sucesso!");
-            navigate("/app/processos");
+            navigate("/gabin/app/processos");
         } catch {
             toast.error("Falha de rede ao salvar.");
         } finally {
@@ -94,7 +94,7 @@ export default function NovoProcessoPage() {
     return (
         <div className={styles.page}>
             <div className={styles.header}>
-                <button className={styles.backBtn} type="button" onClick={() => navigate("/app/processos")}>
+                <button className={styles.backBtn} type="button" onClick={() => navigate("/gabin/app/processos")}>
                     <ArrowLeft className={styles.btnIcon} aria-hidden="true" />
                     Voltar
                 </button>
@@ -172,7 +172,7 @@ export default function NovoProcessoPage() {
                         <button
                             className={styles.secondaryBtn}
                             type="button"
-                            onClick={() => navigate("/app/processos")}
+                            onClick={() => navigate("/gabin/app/processos")}
                             disabled={saving}
                         >
                             Cancelar

@@ -204,7 +204,7 @@ export default function ProcessosPage() {
   }
 
   function openView(id: number) {
-    navigate(`/app/processos/${id}`);
+    navigate(`/gabin/app/processos/${id}`);
   }
 
   return (
@@ -220,7 +220,7 @@ export default function ProcessosPage() {
           </div>
         </div>
 
-        <button className={styles.primaryBtn} onClick={() => navigate("/app/processos/novo")} type="button">
+        <button className={styles.primaryBtn} onClick={() => navigate("/gabin/app/processos/novo")} type="button">
           <Plus className={styles.btnIcon} aria-hidden="true" />
           Adicionar arquivos
         </button>
