@@ -3,6 +3,7 @@
   gap: 6px;
   justify-items: center;
   user-select: none;
+  padding-top: 1rem;
 }
 
 .brand {
@@ -10,6 +11,7 @@
   letter-spacing: -0.8px;
   font-size: 70pt;
   line-height: 1;
+  list-style: none;
 }
 
 .gab {
@@ -20,11 +22,44 @@
   color: var(--yellow);
 }
 
+/* ⭐ estrela no pingo do "I" */
+.iWrap {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+
+.iChar {
+  display: inline-block;
+}
+
+.iStar {
+  position: absolute;
+  left: 50%;
+  top: -0.7em;          /* ajusta o "pingo" */
+  transform: translateX(-50%);
+  color: #BF3C30;        /* vermelho pedido */
+  font-size: 0.38em;     /* tamanho da estrela relativo ao I */
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.tChar {
+  display: inline-block;
+}
+
+/* texto do subtítulo em azul */
 .subtitle {
   font-size: 20pt;
   font-weight: 700;
   letter-spacing: 0.2px;
+  color: #3B9CD9; /* azul pedido */
 }
 
-.subGreen { color: var(--green-dark); }
-.subYellow { color: var(--yellow); }
+/* garante que não “volte” p/ verde/amarelo */
+.subGreen { color: #3B9CD9; }
+.subYellow { color: #3B9CD9; }
+
+/* (opcional) se você usa subBlue no JSX, deixa definido também */
+.subBlue { color: #3B9CD9; }

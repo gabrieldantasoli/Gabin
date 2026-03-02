@@ -1400,7 +1400,6 @@ BEGIN
   IF @arquivo_id IS NULL OR @arquivo_id <= 0
     THROW 52002, 'arquivo_id inválido', 1;
 
-  -- (Opcional, mas recomendado) garante que o arquivo existe
   IF NOT EXISTS (
     SELECT 1
     FROM dbo.arquivo a
@@ -1417,7 +1416,8 @@ BEGIN
     se.nome AS status_nome,
     e.procurador_id,
     pr.nome AS procurador_nome,
-    pe.pages_json AS evento_pages_json
+    pe.pages_json       AS evento_pages_json,
+    pe.conteudo_paginas AS evento_conteudo_paginas
   FROM dbo.evento e
   LEFT JOIN dbo.status_evento se ON se.id = e.status_evento_id
   LEFT JOIN dbo.procurador pr ON pr.id = e.procurador_id
@@ -1794,3 +1794,6 @@ BEGIN
   SELECT 1 AS ok;
 END
 GO
+
+ALTER TABLE pages
+ADD conteudo_paginas NVARCHAR(MAX) NULL;

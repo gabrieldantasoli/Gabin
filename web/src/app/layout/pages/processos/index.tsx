@@ -10,6 +10,9 @@ import {
   ChevronRight,
   FileDown,
   Eye,
+  CircleCheck,
+  CircleX,
+  Clock,
 } from "lucide-react";
 import styles from "./index.module.css";
 
@@ -29,38 +32,71 @@ type GabineteRow = { id: number; nome: string };
 
 type SortMode = "recent" | "oldest" | "az" | "za";
 
-function fmtDate(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-}
+type EventoRow = {
+  id: number;
+  nome: string;
+  pages_json: any; // string JSON, array, null...
+};
 
-function normalizeStatus(s: string) {
+function normalizeKey(s: string) {
   return String(s || "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
 }
 
-function statusLabel(s: string) {
-  const v = normalizeStatus(s);
+function parsePagesLike(v: any): number[] {
+  if (v == null) return [];
 
-  if (v === "entregue") return "Entregue";
-  if (v === "processando" || v === "em processamento") return "Em processamento";
-  if (v === "processado") return "Processado";
+  if (Array.isArray(v)) {
+    return v
+      .map((x) => Number(x))
+      .filter((n) => Number.isInteger(n) && n > 0);
+  }
 
-  // fallback
-  return s || "—";
+  if (typeof v === "string") {
+    const s = v.trim();
+    if (!s) return [];
+
+    if (s.startsWith("[") || s.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(s);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((x) => Number(x))
+            .filter((n) => Number.isInteger(n) && n > 0);
+        }
+        return [];
+      } catch {
+        // cai pro CSV abaixo
+      }
+    }
+
+    // CSV "1,2,3"
+    return s
+      .split(",")
+      .map((x) => Number(String(x).trim()))
+      .filter((n) => Number.isInteger(n) && n > 0);
+  }
+
+  return [];
 }
 
-function statusClass(s: string) {
-  const v = normalizeStatus(s);
+function normalizeEvento(raw: any): EventoRow | null {
+  const nome = String(raw?.evento_nome ?? raw?.nome_evento ?? raw?.nome ?? raw?.evento ?? "").trim();
+  if (!nome) return null;
 
-  if (v === "entregue") return styles.badgeNeutral;
-  if (v === "processando" || v === "em processamento") return styles.badgeWarn;
-  if (v === "processado") return styles.badgeDanger;
+  const pages_json =
+    raw?.evento_pages_json ??
+    raw?.evento_paginas_json ??
+    raw?.pages_json ??
+    raw?.pages ??
+    raw?.paginas ??
+    null;
 
-  return styles.badgeNeutral;
+  const id = Number(raw?.id ?? 0) || 0;
+
+  return { id, nome, pages_json };
 }
 
 export default function ProcessosPage() {
@@ -79,6 +115,10 @@ export default function ProcessosPage() {
 
   const [pageSize, setPageSize] = useState<5 | 10 | 20 | 30>(10);
   const [page, setPage] = useState(1);
+
+  // Eventos por arquivo
+  const [eventosByArquivo, setEventosByArquivo] = useState<Record<number, EventoRow[]>>({});
+  const [eventosLoading, setEventosLoading] = useState<Record<number, boolean>>({});
 
   async function loadLookups() {
     try {
@@ -115,6 +155,78 @@ export default function ProcessosPage() {
       setLoading(false);
     }
   }
+
+  async function loadEventosForArquivo(arquivoId: number) {
+    // já carregado
+    if (Object.prototype.hasOwnProperty.call(eventosByArquivo, arquivoId)) return;
+    // já carregando
+    if (eventosLoading[arquivoId]) return;
+
+    setEventosLoading((p) => ({ ...p, [arquivoId]: true }));
+    try {
+      // Ajuste esta URL se seu backend usar outra rota
+      const res = await fetch(`/api/arquivos/${arquivoId}/eventos`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const payload = await res.json().catch(() => []);
+      if (!res.ok) {
+        setEventosByArquivo((p) => ({ ...p, [arquivoId]: [] }));
+        return;
+      }
+
+      const list = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.items)
+          ? payload.items
+          : Array.isArray(payload?.eventos)
+            ? payload.eventos
+            : [];
+
+      const norm = list.map(normalizeEvento).filter(Boolean) as EventoRow[];
+      setEventosByArquivo((p) => ({ ...p, [arquivoId]: norm }));
+    } catch {
+      setEventosByArquivo((p) => ({ ...p, [arquivoId]: [] }));
+    } finally {
+      setEventosLoading((p) => ({ ...p, [arquivoId]: false }));
+    }
+  }
+
+  // Prefetch eventos de todos os processos (com limite de concorrência simples)
+  useEffect(() => {
+    let cancelled = false;
+
+    async function prefetchAll() {
+      const ids = items.map((x) => x.id);
+      const missing = ids.filter(
+        (id) => !Object.prototype.hasOwnProperty.call(eventosByArquivo, id) && !eventosLoading[id]
+      );
+
+      if (missing.length === 0) return;
+
+      const limit = 6;
+      let idx = 0;
+
+      async function worker() {
+        while (!cancelled) {
+          const cur = missing[idx++];
+          if (!cur) return;
+          await loadEventosForArquivo(cur);
+        }
+      }
+
+      const workers = Array.from({ length: Math.min(limit, missing.length) }, () => worker());
+      await Promise.all(workers);
+    }
+
+    prefetchAll();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   useEffect(() => {
     loadLookups();
@@ -207,6 +319,68 @@ export default function ProcessosPage() {
     navigate(`/app/processos/${id}`);
   }
 
+  // Colunas dinâmicas (eventos) — união de todos eventos carregados
+  const eventColumns = useMemo(() => {
+    const map = new Map<string, string>(); // key normalizada -> label original
+    Object.values(eventosByArquivo).forEach((list) => {
+      for (const ev of list) {
+        const key = normalizeKey(ev.nome);
+        if (!key) continue;
+        if (!map.has(key)) map.set(key, ev.nome);
+      }
+    });
+
+    return Array.from(map.entries())
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+  }, [eventosByArquivo]);
+
+  function renderEventoMark(arquivoId: number, colKey: string, colLabel: string) {
+    const iconSize = 22;
+    const iconStroke = 3.6;
+
+    const hasLoaded = Object.prototype.hasOwnProperty.call(eventosByArquivo, arquivoId);
+
+    // Processando (ainda não carregou ou está carregando)
+    if (!hasLoaded || eventosLoading[arquivoId]) {
+      return (
+        <span className={styles.iconWrap} title={`${colLabel} — processando`} aria-label={`${colLabel} — processando`}>
+          <Clock size={iconSize} strokeWidth={iconStroke} style={{ color: "#64748b" }} />
+        </span>
+      );
+    }
+
+    const list = eventosByArquivo[arquivoId] || [];
+    const ev = list.find((x) => normalizeKey(x.nome) === colKey);
+
+    // Sem o evento ainda (processando)
+    if (!ev) {
+      return (
+        <span className={styles.iconWrap} title={`${colLabel} — processando`} aria-label={`${colLabel} — processando`}>
+          <Clock size={iconSize} strokeWidth={iconStroke} style={{ color: "#64748b" }} />
+        </span>
+      );
+    }
+
+    const pages = parsePagesLike(ev.pages_json);
+
+    // Com páginas
+    if (pages.length > 0) {
+      return (
+        <span className={styles.iconWrap} title={`${colLabel} — com páginas`} aria-label={`${colLabel} — com páginas`}>
+          <CircleCheck size={iconSize} strokeWidth={iconStroke} style={{ color: "#16a34a" }} />
+        </span>
+      );
+    }
+
+    // Evento existe, mas sem páginas
+    return (
+      <span className={styles.iconWrap} title={`${colLabel} — sem páginas`} aria-label={`${colLabel} — sem páginas`}>
+        <CircleX size={iconSize} strokeWidth={iconStroke} style={{ color: "#dc2626" }} />
+      </span>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -233,7 +407,7 @@ export default function ProcessosPage() {
             className={styles.searchInput}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Filtrar por processo, gabinete, status..."
+            placeholder="Filtrar por processo"
           />
         </div>
 
@@ -244,38 +418,6 @@ export default function ProcessosPage() {
             <option value="oldest">Mais antigos</option>
             <option value="az">A–Z</option>
             <option value="za">Z–A</option>
-          </select>
-        </div>
-
-        <div className={styles.sort}>
-          <span className={styles.pagerLabel}>Status</span>
-          <select
-            className={styles.select}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
-          >
-            <option value="all">Todos</option>
-            {statuses.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.sort}>
-          <span className={styles.pagerLabel}>Gabinete</span>
-          <select
-            className={styles.select}
-            value={gabFilter}
-            onChange={(e) => setGabFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
-          >
-            <option value="all">Todos</option>
-            {gabs.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.nome}
-              </option>
-            ))}
           </select>
         </div>
 
@@ -302,22 +444,29 @@ export default function ProcessosPage() {
                 <tr>
                   <th>Processo</th>
                   <th>Gabinete</th>
-                  <th>Status</th>
-                  <th>Criado em</th>
+
+                  {eventColumns.map((c) => (
+                    <th key={c.key} className={styles.thEvento} title={c.label}>
+                      <span className={styles.thEventoText}>{c.label}</span>
+                    </th>
+                  ))}
+
                   <th className={styles.thActions}>Ações</th>
                 </tr>
               </thead>
+
               <tbody>
                 {paginated.map((a) => (
                   <tr key={a.id}>
                     <td className={styles.tdStrong}>{a.nome_processo}</td>
                     <td className={styles.tdMuted}>{a.gabinete_nome}</td>
-                    <td className={styles.badgeCell}>
-                      <span className={`${styles.badge} ${statusClass(a.status_nome)}`}>
-                        {statusLabel(a.status_nome)}
-                      </span>
-                    </td>
-                    <td className={styles.tdMuted}>{fmtDate(a.created_at)}</td>
+
+                    {eventColumns.map((c) => (
+                      <td key={c.key} className={styles.tdEvento}>
+                        {renderEventoMark(a.id, c.key, c.label)}
+                      </td>
+                    ))}
+
                     <td className={styles.tdActions}>
                       <div className={styles.actions}>
                         <button
@@ -347,7 +496,13 @@ export default function ProcessosPage() {
             </table>
 
             <div className={styles.tableFooter}>
-              <button type="button" className={styles.pageBtn} onClick={prevPage} disabled={page <= 1} aria-label="Página anterior">
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={prevPage}
+                disabled={page <= 1}
+                aria-label="Página anterior"
+              >
                 <ChevronLeft className={styles.pageIcon} aria-hidden="true" />
               </button>
 
@@ -355,7 +510,13 @@ export default function ProcessosPage() {
                 Página <b>{page}</b> de <b>{totalPages}</b>
               </span>
 
-              <button type="button" className={styles.pageBtn} onClick={nextPage} disabled={page >= totalPages} aria-label="Próxima página">
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={nextPage}
+                disabled={page >= totalPages}
+                aria-label="Próxima página"
+              >
                 <ChevronRight className={styles.pageIcon} aria-hidden="true" />
               </button>
             </div>

@@ -60,7 +60,7 @@ export default function Sidebar() {
     <aside className={styles.sidebar} aria-label="Menu lateral">
       <div className={styles.top}>
         <div className={styles.logoWrap}>
-          <NavLink to="/app/home">
+          <NavLink to="/app/home" style={{ textDecoration: "none" }}>
             <Logo />
           </NavLink>
 
@@ -72,29 +72,29 @@ export default function Sidebar() {
             <span>Processos</span>
           </NavLink>
 
-          <NavLink to="/app/gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          {/* <NavLink to="/app/gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+            <Building2 className={styles.icon} aria-hidden="true" />
+            <span>Gabinetes</span>
+          </NavLink> */}
+
+          <NavLink to="/app/meus-gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <Building2 className={styles.icon} aria-hidden="true" />
             <span>Gabinetes</span>
           </NavLink>
 
-          <NavLink to="/app/meus-gabinetes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
-            <Building2 className={styles.icon} aria-hidden="true" />
-            <span>Meus Gabinetes</span>
-          </NavLink>
-
-          <NavLink to="/app/solicitacoes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          {/* <NavLink to="/app/solicitacoes" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <IconSolicitacoes />
             <span>Solicitações</span>
-          </NavLink>
+          </NavLink> */}
 
           {/* <NavLink to="/app/favoritos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <IconFavoritos />
             <span>Favoritos</span>
           </NavLink> */}
-          <NavLink to="/app/meus-acessos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
+          {/* <NavLink to="/app/meus-acessos" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ""}`}>
             <KeyRound className={styles.icon} aria-hidden="true" />
             <span>Meus Acessos</span>
-          </NavLink>
+          </NavLink> */}
 
         </nav>
       </div>

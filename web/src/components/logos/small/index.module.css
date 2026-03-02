@@ -5,11 +5,19 @@
   user-select: none;
 }
 
+.wrap,
+.wrap * {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
 .brand {
   font-weight: 900;
   letter-spacing: -0.8px;
   font-size: 50pt;
   line-height: 1;
+  
 }
 
 .gab {
@@ -28,3 +36,31 @@
 
 .subGreen { color: var(--green-dark); }
 .subYellow { color: var(--yellow); }
+
+
+.iWrap {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+
+.iChar {
+  display: inline-block;
+}
+
+.iStar {
+  position: absolute;
+  left: 50%;
+  top: -0.7em;          /* ajusta o "pingo" */
+  transform: translateX(-50%);
+  color: #BF3C30;        /* vermelho pedido */
+  font-size: 0.38em;     /* tamanho da estrela relativo ao I */
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.tChar {
+  display: inline-block;
+}
+

@@ -331,3 +331,44 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Colunas de eventos: mais estreitas, SEM quebrar palavra, e título centralizado */
+.thEvento {
+  width: 120px;
+  max-width: 120px;
+
+  /* centralização do conteúdo do TH */
+  text-align: center;
+  vertical-align: middle;
+
+  /* opcional: deixa o header mais “quadrado” */
+  padding: 0;
+}
+
+.thEventoText {
+  /* centraliza vertical/horizontal mesmo com 2+ linhas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  padding: 8px 6px;
+
+  text-align: center;
+  line-height: 1.15;
+
+  /* quebra só em espaços (não quebra a palavra) */
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+/* Célula do body alinhada e com largura compatível */
+.tdEvento {
+  width: 120px;
+  max-width: 120px;
+  text-align: center;
+  vertical-align: middle;
+}
