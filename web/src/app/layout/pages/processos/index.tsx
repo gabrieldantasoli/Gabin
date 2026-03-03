@@ -315,8 +315,10 @@ export default function ProcessosPage() {
     }
   }
 
-  function openView(id: number) {
-    navigate(`/gabin/app/processos/${id}`);
+  function openView(id: number, nomeProcesso: string) {
+    navigate(`/gabin/app/processos/${id}`, {
+      state: { breadcrumb: nomeProcesso },
+    });
   }
 
   // Colunas dinâmicas (eventos) — união de todos eventos carregados
@@ -472,21 +474,11 @@ export default function ProcessosPage() {
                         <button
                           className={styles.ghostBtn}
                           type="button"
-                          onClick={() => openView(a.id)}
+                          onClick={() => openView(a.id, a.nome_processo)}
                           title="Ver detalhes"
                           aria-label="Ver detalhes"
                         >
                           <Eye className={styles.btnIcon} aria-hidden="true" />
-                        </button>
-
-                        <button
-                          className={styles.ghostBtn}
-                          type="button"
-                          onClick={() => openPdf(a.id)}
-                          title="Abrir PDF"
-                          aria-label="Abrir PDF"
-                        >
-                          <FileDown className={styles.btnIcon} aria-hidden="true" />
                         </button>
                       </div>
                     </td>

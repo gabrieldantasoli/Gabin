@@ -264,10 +264,6 @@ BEGIN
 END
 GO
 
-
-
-
-
 --  PROCEDURES:
 USE appdb;
 GO
@@ -297,13 +293,20 @@ BEGIN
   INSERT INTO dbo.users (nome, login, senha)
   VALUES (@nome, @login, @senha);
 
-  DECLARE @new_id INT = SCOPE_IDENTITY();
+  DECLARE @new_id INT = CONVERT(INT, SCOPE_IDENTITY());
+
+  -- cria o gabinete do usuário recém-criado
+  EXEC dbo.usp_gabinete_create
+    @user_id   = @new_id,
+    @nome      = @nome,
+    @descricao = N'';
 
   SELECT id, nome, login
   FROM dbo.users
   WHERE id = @new_id;
 END
 GO
+
 
 /* =========================================================
    PROCEDURE: buscar usuário por ID

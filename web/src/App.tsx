@@ -49,10 +49,10 @@ export default function App() {
         }
       >
         {/* index do /gabin/app */}
-        <Route index element={<Navigate to="/gabin/app/home" replace />} />
+        <Route index element={<Navigate to="/gabin/app/processos" replace />} />
 
         {/* TODAS as rotas com prefixo /gabin */}
-        <Route path="/gabin/app/home" element={<Home />} />
+        <Route path="/gabin/app/processos" element={<ProcessosPage />} />
 
         <Route path="/gabin/app/processos" element={<ProcessosPage />} />
         <Route path="/gabin/app/processos/novo" element={<NovoProcessoPage />} />
@@ -67,7 +67,7 @@ export default function App() {
         <Route path="/gabin/app/meus-acessos" element={<Acessos />} />
 
         {/* wildcard dentro do app */}
-        <Route path="*" element={<Navigate to="/gabin/app/home" replace />} />
+        <Route path="*" element={<Navigate to="/gabin/app/processos" replace />} />
       </Route>
 
       {/* wildcard global */}

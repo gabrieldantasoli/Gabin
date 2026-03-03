@@ -10,8 +10,8 @@ export default function HomePage() {
         <Logo />
 
         <p className={styles.subtitle}>
-          Aqui você pode analisar e contribuir com processos de triagem: visualize documentos, confira metadados, acompanhe eventos e
-          organize páginas com rapidez e clareza.
+          Aqui você pode analisar e contribuir com processos de triagem: visualize documentos, acompanhe eventos processuais e
+          navegue entre páginas com rapidez e clareza.
         </p>
       </div>
     </div>

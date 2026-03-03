@@ -1,8 +1,12 @@
+/* index.module.css (Logo small) */
+
 .wrap {
-  display: grid;
-  gap: 6px;
-  justify-items: center;
-  user-select: none;
+  display: flex;
+  align-items: center;
+  padding: 0;            /* continua essencial */
+  height: 100%;          /* herda do logoWrap */
+  max-height: 100%;
+  gap: 14px;
 }
 
 .wrap,
@@ -15,9 +19,12 @@
 .brand {
   font-weight: 900;
   letter-spacing: -0.8px;
-  font-size: 50pt;
+
+  /* pt é ruim pra UI, e 50pt é grande demais pro header */
+  font-size: 50px;   /* ajuste fino: 36–44px */
   line-height: 1;
-  
+
+  margin-right: 10px;
 }
 
 .gab {
@@ -28,20 +35,14 @@
   color: var(--yellow);
 }
 
-.subtitle {
-  font-size: 20pt;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-}
-
-.subGreen { color: var(--green-dark); }
-.subYellow { color: var(--yellow); }
-
-
+/* --- estrela no "I" --- */
 .iWrap {
   position: relative;
   display: inline-block;
   line-height: 1;
+
+  /* garante que a estrela não seja "cortada" dentro da palavra */
+  overflow: visible;
 }
 
 .iChar {
@@ -51,16 +52,40 @@
 .iStar {
   position: absolute;
   left: 50%;
-  top: -0.7em;          /* ajusta o "pingo" */
+
+  /* um pouco menos agressivo que -0.7em (pra não “saltar” demais) */
+  top: -0.62em;
+
   transform: translateX(-50%);
-  color: #BF3C30;        /* vermelho pedido */
-  font-size: 0.38em;     /* tamanho da estrela relativo ao I */
+  color: #BF3C30;
+  font-size: 0.38em;
   line-height: 1;
   pointer-events: none;
   user-select: none;
 }
 
-.tChar {
-  display: inline-block;
+/* --- logos à direita --- */
+.images {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+/* em header, altura consistente é melhor do que width fixa */
+.logoImage1,
+.logoImage2 {
+  display: block;
+  height: 34px;  /* ajuste fino: 30–38px */
+  width: auto;
+}
+
+.logoWrap {
+  height: 60px;          /* 56–60 */
+  max-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.logoWrap :global(*) {
+  max-height: 100%;
+}

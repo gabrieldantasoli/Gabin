@@ -1,11 +1,14 @@
 .shell {
-  height: 100dvh;
+  min-height: 100dvh;
   display: flex;
+  flex-direction: column; /* ✅ era row */
   overflow: hidden; /* impede scroll fantasma do layout */
 }
 
+/* main agora ocupa o restante abaixo do header */
 .main {
   flex: 1;
+  min-height: 0; /* ✅ importante para o overflow funcionar corretamente */
   display: flex;
   flex-direction: column;
 
@@ -21,6 +24,7 @@
 
 .content {
   flex: 1 1 auto;
-  overflow: auto;     /* scroll só aqui quando precisar */
-  padding-top: 14px;  /* espaço abaixo do breadcrumb */
+  min-height: 0;     /* ✅ importante para não estourar a altura */
+  overflow: auto;    /* scroll só aqui quando precisar */
+  padding-top: 14px; /* espaço abaixo do breadcrumb */
 }

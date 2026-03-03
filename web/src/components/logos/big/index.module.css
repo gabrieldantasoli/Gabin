@@ -1,19 +1,33 @@
 .wrap {
-  display: grid;
-  gap: 6px;
-  justify-items: center;
-  user-select: none;
-  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+  text-align: center;
+
+  /* evita “pulos” de altura por fontes/imagens */
+  line-height: 1;
 }
 
 .brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   font-weight: 900;
-  letter-spacing: -0.8px;
-  font-size: 70pt;
+  letter-spacing: -0.06em;
   line-height: 1;
   list-style: none;
 }
 
+/* ✅ tamanho do título proporcional e responsivo */
+.brand > div:first-child {
+  font-size: clamp(44px, 5.2vw, 78px);
+}
+
+/* cores */
 .gab {
   color: var(--green-dark);
 }
@@ -27,39 +41,76 @@
   position: relative;
   display: inline-block;
   line-height: 1;
+  /* garante que a estrela não seja cortada */
+  overflow: visible;
 }
 
 .iChar {
   display: inline-block;
 }
 
+/* mais “cirúrgico” que -0.7em (fica consistente em vários tamanhos) */
 .iStar {
   position: absolute;
   left: 50%;
-  top: -0.7em;          /* ajusta o "pingo" */
+  top: -0.62em;
   transform: translateX(-50%);
-  color: #BF3C30;        /* vermelho pedido */
-  font-size: 0.38em;     /* tamanho da estrela relativo ao I */
+
+  color: #bf3c30;
+  font-size: 0.38em;
   line-height: 1;
+
   pointer-events: none;
   user-select: none;
 }
 
-.tChar {
-  display: inline-block;
-}
-
-/* texto do subtítulo em azul */
+/* subtítulo */
 .subtitle {
-  font-size: 20pt;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  color: #3B9CD9; /* azul pedido */
+  margin-top: 4px;
+
+  font-size: clamp(14px, 1.55vw, 22px);
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+
+  color: #3b9cd9;
 }
 
-/* garante que não “volte” p/ verde/amarelo */
-.subGreen { color: #3B9CD9; }
-.subYellow { color: #3B9CD9; }
+.subBlue {
+  color: #3b9cd9;
+}
 
-/* (opcional) se você usa subBlue no JSX, deixa definido também */
-.subBlue { color: #3B9CD9; }
+/* se você quer tudo azul mesmo, mantém assim */
+.subGreen {
+  color: #3b9cd9;
+}
+.subYellow {
+  color: #3b9cd9;
+}
+
+/* logos */
+.images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 16px;
+  margin-top: 2px;
+}
+
+/* ✅ em header/hero é melhor fixar ALTURA e deixar width auto */
+.logoImage1,
+.logoImage2 {
+  display: block;
+  height: clamp(42px, 4.2vw, 72px); /* ✅ maior */
+  width: auto;
+  object-fit: contain;
+}
+
+/* diferença sutil entre elas (opcional) */
+.logoImage1 {
+  height: clamp(40px, 4.0vw, 68px);
+}
+.logoImage2 {
+  height: clamp(46px, 4.6vw, 78px);
+}

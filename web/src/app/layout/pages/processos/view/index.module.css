@@ -1,12 +1,55 @@
-.page {
-  display: flex;
-  flex-direction: column;
+/* index.module.css (FINAL — scroll na tela + scroll no card de eventos, alinhados) */
+
+:global(html, body, #root) {
   height: 100%;
-  min-height: 0;
-  overflow-x: hidden;
 }
 
-/* breadcrumb 100% e só nome do documento */
+/* ✅ garante scroll da tela mesmo se existir algum global travando */
+:global(html) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+:global(body) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Ajuste se a altura do seu header (Sidebar sticky) for diferente */
+:global(:root) {
+  --appHeaderH: 72px;
+
+  /* espaçamento “respirável” */
+  --gap: 14px;
+  --radius: 16px;
+  --border: rgba(0, 0, 0, 0.10);
+
+  /* distância do topo do painel sticky (abaixo do header do app) */
+  --stickyTopGap: 12px;
+
+  /* respiro no fundo do painel sticky */
+  --stickyBottomGap: 14px;
+}
+
+/* =========================
+   TELA: rola normalmente
+   ========================= */
+.page {
+  min-height: calc(100dvh - var(--appHeaderH));
+  height: auto;
+
+  /* ✅ não trava scroll da tela */
+  overflow: visible;
+
+  display: flex;
+  flex-direction: column;
+
+  padding-bottom: 16px; /* respiro no fim da página */
+  box-sizing: border-box;
+}
+
+/* =========================
+   HEADER da página (fica normal)
+   ========================= */
 .breadcrumbFull {
   width: 100%;
   padding: 12px 14px;
@@ -79,38 +122,44 @@
   font-size: 13px;
 }
 
+/* =========================
+   LAYOUT: 2 colunas, alinhadas
+   ========================= */
 .layout {
-  flex: 1;
-  min-height: 0;
   display: flex;
-  gap: 14px;
-  overflow-x: hidden;
+  gap: var(--gap);
+  align-items: flex-start;
+
+  /* ✅ a página rola; aqui não trava */
+  overflow: visible;
+
+  /* respiro abaixo dos cards */
+  padding-bottom: 14px;
+  box-sizing: border-box;
 }
 
-/* PDF estreito */
+/* =========================
+   PDF (esquerda) — sticky e altura fixa
+   ========================= */
 .viewerCard {
-  flex: 0 0 40%;
-  min-width: 0;
-  min-height: 0;
+  flex: 0 0 35%;
+  min-width: 360px;
+
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+
+  border-radius: var(--radius);
   overflow: hidden;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.10);
-}
+  border: 1px solid var(--border);
 
-.side {
-  flex: 0 0 calc(66% - 1rem);
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  overflow: hidden;
+  position: sticky;
+  top: calc(var(--appHeaderH) + var(--stickyTopGap));
+  height: calc(100dvh - var(--appHeaderH) - var(--stickyTopGap) - var(--stickyBottomGap));
 }
 
 .viewerHeader {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -135,25 +184,59 @@
   white-space: nowrap;
 }
 
-.pdfObject {
-  flex: 1;
+/* wrapper do PDF (se existir no TSX) */
+.viewerBody {
+  flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden; /* o viewer PDF tem scroll próprio */
+}
+
+.pdfObject,
+.pdfFrame {
   width: 100%;
+  height: 100%;
+  min-height: 0;
   border: 0;
   display: block;
 }
 
-.card {
+.state {
+  opacity: 0.8;
+  font-size: 13px;
+  padding: 10px 12px;
+}
+
+/* =========================
+   EVENTOS (direita) — sticky com mesma altura do PDF
+   + scroll vertical no conteúdo
+   ========================= */
+.side {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  position: sticky;
+  top: calc(var(--appHeaderH) + var(--stickyTopGap));
+  height: calc(100dvh - var(--appHeaderH) - var(--stickyTopGap) - var(--stickyBottomGap));
+
   display: flex;
   flex-direction: column;
+}
+
+.card {
+  height: 100%;
   min-height: 0;
-  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  border-radius: var(--radius);
   overflow: hidden;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid var(--border);
 }
 
 .cardHeader {
+  flex: 0 0 auto;
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -166,18 +249,17 @@
   font-weight: 700;
 }
 
-.state {
-  opacity: 0.8;
-  font-size: 13px;
-}
-
-/* Eventos horizontal */
 .eventsTextCard {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+
+  display: flex;
+  flex-direction: column;
 }
 
+/* tabs/chips (horizontal) */
 .eventsStrip {
+  flex: 0 0 auto;
   padding: 10px 12px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
@@ -197,11 +279,13 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
   cursor: pointer;
+
   min-width: 180px;
   max-width: 280px;
   text-align: left;
@@ -232,17 +316,35 @@
   white-space: nowrap;
 }
 
+/* ✅ scroll vertical dentro do card (conteúdo textual) */
 .eventsBody {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+
   overflow-y: auto;
+  overflow-x: hidden;
+
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  scrollbar-gutter: stable;
 }
 
-/* ✅ Resumo do evento (só título + linhas) */
+/* Scrollbar suave */
+.eventsBody::-webkit-scrollbar {
+  width: 10px;
+}
+.eventsBody::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.16);
+  border-radius: 999px;
+}
+.eventsBody::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Resumo do evento */
 .eventTopInfo {
   border: 1px solid rgba(0, 0, 0, 0.10);
   border-radius: 14px;
@@ -252,40 +354,28 @@
 
 .eventTitleOnly {
   font-weight: 950;
-  font-size: 16px;
+  font-size: 25px;
   line-height: 1.2;
   margin-bottom: 6px;
 }
 
-.eventStatusOnly {
-  font-weight: 800;
-  font-size: 12px;
-  opacity: 0.85;
-  margin-bottom: 6px;
-}
-
-.eventMetaOnly {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-/* ✅ Lista só de cards das páginas (com collapse) */
+/* Cards das páginas */
 .pageBlocksWrap {
-  width: calc(100% - 6rem);
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Card página */
 .pageSection {
   border: 1px solid rgba(0, 0, 0, 0.10);
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+  padding: 0 1.5em;
+
+  /* ajuda o scrollIntoView a não colar no topo */
+  scroll-margin-top: 10px;
 }
 
 .pageSectionHeaderBtn {
@@ -316,137 +406,57 @@
   gap: 10px;
 }
 
+/* Botão "Ver no PDF" */
 .goPdfBtn {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  cursor: pointer;
+  height: 30px;
+  padding: 0 12px;
   border-radius: 999px;
-  padding: 6px 10px;
+
+  border: 1px solid rgba(4, 157, 217, 0.28);
+  background: rgba(4, 157, 217, 0.10);
+  color: rgba(4, 157, 217, 0.95);
+
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
+  cursor: pointer;
   white-space: nowrap;
+
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, filter 120ms ease;
 }
 
 .goPdfBtn:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: rgba(4, 157, 217, 0.14);
+  border-color: rgba(4, 157, 217, 0.40);
+  transform: translateY(-1px);
 }
 
-.chev {
-  width: 18px;
-  height: 18px;
-  opacity: 0.85;
+.iconOk { color: #16a34a !important; }
+.iconBad { color: #dc2626 !important; }
+.iconProc { color: #64748b !important; }
+
+.iconOk :where(path, circle, rect, line, polyline, polygon),
+.iconBad :where(path, circle, rect, line, polyline, polygon),
+.iconProc :where(path, circle, rect, line, polyline, polygon) {
+  stroke: currentColor !important;
 }
 
-.pageSectionBody {
-  padding: 10px 10px 12px 10px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
+/* =========================
+   Responsivo
+   ========================= */
+@media (max-width: 1100px) {
+  .layout {
+    flex-direction: column;
+  }
 
-/* Ícones */
-.iconOk {
-  color: #16a34a;
-}
-.iconBad {
-  color: #dc2626;
-}
-.iconProc {
-  color: #64748b;
-}
+  .viewerCard,
+  .side {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-width: 0;
+  }
 
-/* Markdown bonito */
-.mdRoot {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #0f172a;
-}
-
-.mdH1 {
-  font-size: 18px;
-  line-height: 1.25;
-  margin: 6px 0 10px 0;
-  font-weight: 900;
-}
-
-.mdH2 {
-  font-size: 16px;
-  line-height: 1.25;
-  margin: 10px 0 8px 0;
-  font-weight: 900;
-}
-
-.mdH3 {
-  font-size: 15px;
-  line-height: 1.25;
-  margin: 10px 0 6px 0;
-  font-weight: 900;
-}
-
-.mdH4 {
-  font-size: 14px;
-  line-height: 1.25;
-  margin: 8px 0 6px 0;
-  font-weight: 900;
-}
-
-.mdP {
-  margin: 0 0 10px 0;
-}
-
-.mdUl,
-.mdOl {
-  margin: 0 0 10px 18px;
-  padding: 0;
-}
-
-.mdLi {
-  margin: 4px 0;
-}
-
-.mdStrong {
-  font-weight: 900;
-}
-
-.mdEm {
-  font-style: italic;
-}
-
-.mdInlineCode {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.92em;
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(15, 23, 42, 0.10);
-}
-
-.mdCodeBlock {
-  margin: 0 0 10px 0;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  overflow-x: auto;
-}
-
-/* fallback forte contra nowrap global */
-.pageSectionBody,
-.pageSectionBody * {
-  white-space: normal;
-}
-
-/* highlight amarelo */
-.hlMark {
-  background: #fde047; /* amarelo */
-  color: inherit;
-  padding: 0 2px;
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06) inset;
-}
-
-.pdfFrame {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  border: 0;
-  display: block;
+  .eventsBody {
+    max-height: 60dvh; /* ainda rola no mobile */
+  }
 }

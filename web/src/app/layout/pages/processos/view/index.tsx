@@ -211,9 +211,6 @@ function parseConteudoPaginasJson(raw: string | null | undefined): Record<number
   return { 0: s };
 }
 
-/* =======================
-   Highlight (no conteúdo textual)
-   ======================= */
 
 function escapeRegExp(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -531,7 +528,6 @@ function MarkdownPrettyView({ value, highlightTerms }: { value: string; highligh
 export default function ProcessoPdfPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-
   const arquivoId = useMemo(() => Number(id), [id]);
 
   const [metadados, setMetadados] = useState<MetadadoRow[]>([]);
@@ -540,14 +536,80 @@ export default function ProcessoPdfPage() {
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [loadingEvt, setLoadingEvt] = useState(true);
 
+  // ✅ sempre inicia em 1 (e só muda no “Ver no PDF”)
   const [pdfPage, setPdfPage] = useState<number>(1);
-  const [selectedEventoId, setSelectedEventoId] = useState<number | null>(null);
 
+  // ✅ PDF baixado uma vez (evita tela branca ao trocar page)
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [pdfBlobLoading, setPdfBlobLoading] = useState(false);
+
+  const [selectedEventoId, setSelectedEventoId] = useState<number | null>(null);
   const [openContent, setOpenContent] = useState<Record<string, boolean>>({});
   const pageCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const pdfBaseUrl = `/api/arquivos/${arquivoId}/pdf`;
-  const pdfSrc = useMemo(() => `${pdfBaseUrl}#page=${pdfPage}&zoom=page-fit`, [pdfBaseUrl, pdfPage]);
+
+  // ✅ carrega PDF 1 vez como blob (com cookie)
+  useEffect(() => {
+    let alive = true;
+    const controller = new AbortController();
+
+    async function loadPdfBlob() {
+      setPdfBlobLoading(true);
+      try {
+        const res = await fetch(pdfBaseUrl, {
+          credentials: "include",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.message || "Erro ao carregar PDF.");
+        }
+
+        const blob = await res.blob();
+        const nextUrl = URL.createObjectURL(blob);
+
+        if (!alive) {
+          URL.revokeObjectURL(nextUrl);
+          return;
+        }
+
+        setPdfBlobUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return nextUrl;
+        });
+      } catch (e: any) {
+        if (e?.name !== "AbortError") {
+          toast.error(e?.message || "Falha ao carregar PDF.");
+          setPdfBlobUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+          });
+        }
+      } finally {
+        if (alive) setPdfBlobLoading(false);
+      }
+    }
+
+    loadPdfBlob();
+
+    return () => {
+      alive = false;
+      controller.abort();
+      setPdfBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+    };
+  }, [pdfBaseUrl]);
+
+  const pdfSrc = useMemo(() => {
+    if (!pdfBlobUrl) return "";
+    const page = pdfPage > 0 ? pdfPage : 1;
+    return `${pdfBlobUrl}#page=${page}&zoom=page-fit`;
+  }, [pdfBlobUrl, pdfPage]);
 
   async function loadMeta() {
     setLoadingMeta(true);
@@ -590,9 +652,10 @@ export default function ProcessoPdfPage() {
   useEffect(() => {
     if (!Number.isFinite(arquivoId) || arquivoId <= 0) {
       toast.error("ID do arquivo inválido.");
-      navigate("/gabin/app/processos");
+      navigate("/app/processos");
       return;
     }
+    setPdfPage(1); // ✅ inicial
     loadMeta();
     loadEventos();
   }, [arquivoId, navigate]);
@@ -673,10 +736,7 @@ export default function ProcessoPdfPage() {
     }
     const firstKey = `${conteudoSections[0].page}-0`;
     setOpenContent({ [firstKey]: true });
-
-    const firstPage = conteudoSections.find((s) => s.page > 0)?.page ?? 1;
-    setPdfPage(firstPage);
-  }, [selectedEventoId]); // intencional
+  }, [selectedEventoId, conteudoSections.length]);
 
   function toggleOpen(key: string) {
     setOpenContent((p) => ({ ...p, [key]: !p[key] }));
@@ -691,7 +751,6 @@ export default function ProcessoPdfPage() {
     if (idx >= 0) {
       const key = `${p}-${idx}`;
       setOpenContent((prev) => ({ ...prev, [key]: true }));
-
       requestAnimationFrame(() => {
         pageCardRefs.current[key]?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -708,18 +767,16 @@ export default function ProcessoPdfPage() {
 
     const pages = parsePagesLike(e.evento_pages_json);
     if (pages.length > 0) return <CircleCheck size={iconSize} strokeWidth={iconStroke} className={styles.iconOk} aria-hidden="true" />;
-
     return <CircleX size={iconSize} strokeWidth={iconStroke} className={styles.iconBad} aria-hidden="true" />;
   }
 
   return (
     <div className={styles.page}>
-      <div className={styles.breadcrumbFull} title={loadingMeta ? "Carregando..." : docName}>
-        {loadingMeta ? "Carregando..." : docName}
-      </div>
+      {/* (se você quiser renderizar o breadcrumb docName, pode usar aqui) */}
+      {/* <div className={styles.breadcrumbFull}>{docName}</div> */}
 
       <div className={styles.header}>
-        <button className={styles.backBtn} type="button" onClick={() => navigate("/gabin/app/processos")}>
+        <button className={styles.backBtn} type="button" onClick={() => navigate("/app/processos")}>
           <ArrowLeft className={styles.btnIcon} aria-hidden="true" />
           Voltar
         </button>
@@ -747,14 +804,36 @@ export default function ProcessoPdfPage() {
             </div>
           </div>
 
-          <object className={styles.pdfObject} data={pdfSrc} type="application/pdf" aria-label="PDF">
-            <div className={styles.state}>
-              Seu navegador não conseguiu exibir o PDF aqui.{" "}
-              <a href={pdfBaseUrl} target="_blank" rel="noreferrer">
-                Abrir em nova aba
-              </a>
-            </div>
-          </object>
+          {/* ✅ wrapper: garante 100% de altura para o PDF */}
+          <div className={styles.viewerBody}>
+            {pdfBlobLoading ? (
+              <div className={styles.state}>Carregando PDF...</div>
+            ) : !pdfBlobUrl ? (
+              <div className={styles.state}>
+                Não foi possível carregar o PDF.
+                <div style={{ marginTop: 8 }}>
+                  <a href={pdfBaseUrl} target="_blank" rel="noreferrer">
+                    Abrir em nova aba
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <object
+                key={`${pdfBlobUrl}|${pdfPage}`} // ✅ evita "tela branca" em alguns browsers
+                className={styles.pdfObject}
+                data={pdfSrc}
+                type="application/pdf"
+                aria-label="PDF"
+              >
+                <div className={styles.state}>
+                  Seu navegador não conseguiu exibir o PDF aqui.{" "}
+                  <a href={pdfBaseUrl} target="_blank" rel="noreferrer">
+                    Abrir em nova aba
+                  </a>
+                </div>
+              </object>
+            )}
+          </div>
         </section>
 
         {/* Direita */}
@@ -798,14 +877,7 @@ export default function ProcessoPdfPage() {
                 <div className={styles.state}>Selecione um evento acima.</div>
               ) : (
                 <>
-                  <div className={styles.eventTopInfo}>
-                    <div className={styles.eventTitleOnly}>{selectedEvento.nome}</div>
-                    <div className={styles.eventStatusOnly}>{statusLabel(selectedEvento.status_nome)}</div>
-                    <div className={styles.eventMetaOnly}>
-                      <span>Criado em: {fmtDate(selectedEvento.created_at)}</span>
-                      {selectedEvento.procurador_nome ? <span>• Procurador: {selectedEvento.procurador_nome}</span> : null}
-                    </div>
-                  </div>
+                    <h2 className={styles.eventTitleOnly}>{selectedEvento.nome}</h2>
 
                   {conteudoSections.length === 0 ? (
                     <div className={styles.state}>Nenhum conteúdo textual disponível para este evento.</div>
@@ -815,8 +887,8 @@ export default function ProcessoPdfPage() {
                         const key = `${sec.page}-${idx}`;
                         const isOpen = !!openContent[key];
 
-                        // ✅ highlight apenas na página atual do PDF
-                        const highlightTerms = sec.page === pdfPage ? getHighlightTermsForText(sec.text) : [];
+                        // ✅ agora marca assim que o conteúdo estiver aberto (não depende do pdfPage)
+                        const highlightTerms = isOpen ? getHighlightTermsForText(sec.text) : [];
 
                         return (
                           <div
