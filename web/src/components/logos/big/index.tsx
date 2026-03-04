@@ -21,22 +21,6 @@ export function Logo() {
           </span>
         </div>
       </div>
-
-      <div className={styles.images}>
-        <img
-          className={styles.logoImage1}
-          src={`${import.meta.env.BASE_URL}logo_oficial_tce_ac.png`}
-          alt="Logo TCE-AC"
-          draggable={false}
-        />
-        <img
-          className={styles.logoImage2}
-          src={`${import.meta.env.BASE_URL}logo-lsi-ufcg.png`}
-          alt="Logo LSI"
-          draggable={false}
-        />
-      </div>
-
     </div>
   );
 }

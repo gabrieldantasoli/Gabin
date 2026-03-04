@@ -17,7 +17,7 @@
   backdrop-filter: blur(10px);
 
   border-bottom: 1px solid var(--border);
-  padding: 10px 14px;
+  padding: 10px 30px;
 
   /* NÃO clipar as logos (evita “cortar” estrelas/partes externas) */
   overflow: visible;
@@ -26,7 +26,7 @@
 .left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0px;
   min-width: 0;
 }
 
@@ -133,8 +133,7 @@
   align-items: center;
   gap: 8px;
 
-  max-width: 320px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 999px;
 
   border: 1px solid rgba(15, 23, 42, 0.12);
@@ -142,6 +141,7 @@
 
   color: rgba(15, 23, 42, 0.92);
   font-weight: 800;
+  font-size: 1.5rem;
 }
 
 .gabIcon {
@@ -186,3 +186,30 @@
 .logout .icon {
   color: rgba(191, 42, 42, 0.95);
 }
+
+.images {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+/* em header, altura consistente é melhor do que width fixa */
+.logoImage1 {
+  display: block;
+  height: 50px;  /* ajuste fino: 30–38px */
+  width: auto;
+}
+
+.logoImage2 {
+  display: block;
+  height: 40px;  /* ajuste fino: 30–38px */
+  width: auto;
+}
+
+.logoWrap {
+  height: 60px;          /* 56–60 */
+  display: flex;
+  align-items: center;
+}
+

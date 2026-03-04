@@ -99,18 +99,21 @@
 }
 
 /* ✅ em header/hero é melhor fixar ALTURA e deixar width auto */
-.logoImage1,
-.logoImage2 {
+.logoImage1 {
   display: block;
-  height: clamp(42px, 4.2vw, 72px); /* ✅ maior */
+  height: 70px;  /* ajuste fino: 30–38px */
   width: auto;
-  object-fit: contain;
 }
 
-/* diferença sutil entre elas (opcional) */
-.logoImage1 {
-  height: clamp(40px, 4.0vw, 68px);
-}
 .logoImage2 {
-  height: clamp(46px, 4.6vw, 78px);
+  display: block;
+  height: 60px;  /* ajuste fino: 30–38px */
+  width: auto;
 }
+
+.logoWrap {
+  height: 60px;          /* 56–60 */
+  display: flex;
+  align-items: center;
+}
+

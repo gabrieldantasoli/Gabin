@@ -153,13 +153,28 @@ export default function Sidebar() {
             <Logo />
           </div>
         </NavLink>
-      </div>
-
-      <div className={styles.right}>
         <div className={styles.gabinetePill} title={gabineteNome}>
           <Building2 className={styles.gabIcon} aria-hidden="true" />
           <span className={styles.gabText}>{gabineteNome}</span>
         </div>
+
+      </div>
+
+      <div className={styles.right}>
+        <div className={styles.images}>
+        <img
+          className={styles.logoImage1}
+          src={`${import.meta.env.BASE_URL}logo_oficial_tce_ac.png`}
+          alt="Logo TCE-AC"
+          draggable={false}
+        />
+        <img
+          className={styles.logoImage2}
+          src={`${import.meta.env.BASE_URL}logo-lsi-ufcg.png`}
+          alt="Logo LSI"
+          draggable={false}
+        />
+      </div>
 
         <button className={styles.logout} onClick={handleLogout} type="button">
           <IconSair />
